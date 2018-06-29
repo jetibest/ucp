@@ -47,7 +47,7 @@ Commands should always conform to the following Regular Expression: `^[a-z-]+$`.
   Enable chat-mode until EOF-marker.
   Gives the opportunity to send messages which will not be interpreted as a command.
 
-`send [EOF-marker] [MIME-type/extension] [filename]`
+`send [EOF-marker] [MIME-type/extension;encoding] [filename]`
   Enable send-mode until EOF-marker.
   Gives the opportunity to a file with the given filename.
   The MIME-type or extension should provide an indication as to how the file should be presented or which encoding is used.
