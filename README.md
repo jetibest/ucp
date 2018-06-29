@@ -23,6 +23,7 @@ This mode enables transferring multi-line files. When sending binary files, cons
 A message is by default encoded in UTF-8.
 Messages are separated using the line separator `\n` (or the deprecated `\r\n` for compatibility with Windows).
 Within the same message, multiple lines may be encoded using `\r\v`.
+Messages should not be trimmed.
 
 ## Commands
 Commands should always conform to the following Regular Expression: `^[a-z-]+$`. Clients are free to implement their own additional commands, while taking into account consistency and readability.
