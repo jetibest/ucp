@@ -1,4 +1,4 @@
-# ucp
+# ucp (Draft)
 Universal Chat Protocol. This protocol could easily be used to chat using `netcat`. It focusses on consistency and readability.
 
 ## Connection configuration
@@ -23,7 +23,9 @@ This mode enables transferring multi-line files. When sending binary files, cons
 A message is by default encoded in UTF-8.
 Messages are separated using the line separator `\n` (or the deprecated `\r\n` for compatibility with Windows).
 Within the same message, multiple lines may be encoded using `\r\v`.
-Messages should not be trimmed.
+UTF-8 emoji-characters may be interpreted, and appropriately visualized in the client.
+Formatting of a message by parsing is only expected through (human-)readable structures such as Markdown.
+Inline files and images may be sent with the 
 
 ## Commands
 Commands should always conform to the following Regular Expression: `^[a-z-]+$`. Clients are free to implement their own additional commands, while taking into account consistency and readability.
@@ -42,15 +44,31 @@ Commands should always conform to the following Regular Expression: `^[a-z-]+$`.
   After this command is executed, all following data will be relayed to the given username. This action cannot be undone without reconnecting. The server should send 'OK' to indicate that the command succeeded, and may give additional information.
 
 `chat [EOF-marker]`
+  Enable chat-mode until EOF-marker.
+  Gives the opportunity to send messages which will not be interpreted as a command.
 
 `send [EOF-marker] [MIME-type/extension] [filename]`
+  Enable send-mode until EOF-marker.
+  Gives the opportunity to a file with the given filename.
+  The MIME-type or extension should provide an indication as to how the file should be presented or which encoding is used.
+  Encoding may also be sent as part of the file, such as `data:image/png;base64,[...]`.
+  In this case, the equivalent MIME-type would be `image/png;base64`.
+
+`refer [filename/identifier]`
+  Refer to a file that may or may not have been sent. If the other party does not have the file yet, it may `request` it.
 
 `request [filename/identifier]`
   Some special identifiers include `public-key` to enable end-to-end encryption, `PONG <identifier>` to support connecting to an IRC-server.
 
 `encrypt [cipher/scheme]`
+  Enables end-to-end encryption using the given cipher/scheme.
+  However, in order to establish a shared secret (session key), PKI is used.
+  Use `request public-key` to automatically receive the public key from the other party.
 
 `session [key]`
+  Set a session key which may be used for end-to-end encryption.
+  This message should be encrypted using PKI.
+  Use `request public-key` to automatically receive the public key from the other party.
 
 `join [channel] [password]`
   Only possible after a succesful `login`.
