@@ -46,6 +46,7 @@ Commands should always conform to the following Regular Expression: `^[a-z-]+$`.
 `send [EOF-marker] [MIME-type/extension] [filename]`
 
 `request [filename/identifier]`
+  Some special identifiers include `public-key` to enable end-to-end encryption, `PONG <identifier>` to support connecting to an IRC-server.
 
 `encrypt [cipher/scheme]`
 
@@ -55,9 +56,12 @@ Commands should always conform to the following Regular Expression: `^[a-z-]+$`.
   Only possible after a succesful `login`.
 
 ## IRC Compatibility
-The ucp is compatible with IRC using the following aliases:
+The ucp is compatible with IRC (Internet Relay Chat) using the following aliases:
 
  - `HELP` -> `help`
  - `JOIN <channel1>{,<channel2>} [<key1>{,<key2>}]` -> `join [channel1] [key1]\njoin [channel2] [key2]`
- - `PASS <password>` `USER <user> <mode> <unused> <realname>` -> `login [realname~user] [password]`
+ - `PASS <password>` `USER <user> <mode> <unused> <realname>` `NICK <realname~user>` -> `login [realname~user] [password]`
  - `PRIVMSG <msgtarget> <message>` -> `chat .\n[message]\n.` (or simply `[message]`)
+ - `PING <identifier>` -> `request "PONG <identifier>"`
+
+All other IRC commands should be either manually inserted or implemented by the client. An ucp client may be used to connect to an IRC server, and an IRC client may also be used to connect to an ucp server.
