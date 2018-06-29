@@ -34,6 +34,8 @@ Commands should always conform to the following Regular Expression: `^[a-z-]+$`.
   Username has to be unique.
   Password is optional, but if the username is stored on the server that is connected to, it has to match. Unless the password was previously empty.
   Registering a new username is implied if the username does not exist yet.
+  Username be formatted as `realname~user`, in which case the `~user` part may be greyed out so that the `realname` is shown as the display name or "nickname".
+  However, this is only applicable if the user would like to use a name that is not unique: `Alice~007`.
 
 `relay [username]`
   After this command is executed, all following data will be relayed to the given username. This action cannot be undone without reconnecting. The server should send 'OK' to indicate that the command succeeded, and may give additional information.
@@ -51,3 +53,10 @@ Commands should always conform to the following Regular Expression: `^[a-z-]+$`.
 `join [channel] [password]`
   Only possible after a succesful `login`.
 
+## IRC Compatibility
+The ucp is compatible with IRC using the following aliases:
+
+ - `HELP` -> `help`
+ - `JOIN <channel1>{,<channel2>} [<key1>{,<key2>}]` -> `join [channel1] [key1]\njoin [channel2] [key2]`
+ - `PASS <password>` `USER <user> <mode> <unused> <realname>` -> `login [realname~user] [password]`
+ - `PRIVMSG <msgtarget> <message>` -> `chat .\n[message]\n.` (or simply `[message]`)
