@@ -54,6 +54,12 @@ Commands should always conform to the following Regular Expression: `^[a-z-]+$`.
 
 `join [channel] [password]`
   Only possible after a succesful `login`.
+  
+`ping [identifier]`
+  Expect a `pong` command back, to test presence and lag.
+
+`pong [identifier]`
+  Sent in reply to a `ping` command. The identifier should be the same as the one that was received.
 
 ## IRC Compatibility
 The ucp is compatible with IRC (Internet Relay Chat) using the following aliases:
@@ -62,6 +68,7 @@ The ucp is compatible with IRC (Internet Relay Chat) using the following aliases
  - `JOIN <channel1>{,<channel2>} [<key1>{,<key2>}]` -> `join [channel1] [key1]\njoin [channel2] [key2]`
  - `PASS <password>` `USER <user> <mode> <unused> <realname>` `NICK <realname~user>` -> `login [realname~user] [password]`
  - `PRIVMSG <msgtarget> <message>` -> `chat .\n[message]\n.` (or simply `[message]`)
- - `PING <identifier>` -> `request "PONG <identifier>"`
+ - `PING <identifier>` -> `ping [identifier]`
+ - `PONG <identifier>` -> `pong [identifier]`
 
 All other IRC commands should be either manually inserted or implemented by the client. An ucp client may be used to connect to an IRC server, and an IRC client may also be used to connect to an ucp server.
