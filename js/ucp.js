@@ -144,7 +144,7 @@
                     if(message.previd === prevreceivedid)
                     {
                         prevreceivedid = message.id;
-                        messagelayer.fire('message', message.text);
+                        messagelayer.fire('message', message.text.replace(/\r$/gi, ''));
                         messagelayer.write(ucp.ACKNOWLEDGE_MESSAGE + message.id + ucp.MESSAGE_SEPARATOR);
                     }
                     else
