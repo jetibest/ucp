@@ -89,3 +89,8 @@ The ucp is compatible with IRC (Internet Relay Chat) using the following aliases
  - `PONG <identifier>` -> `pong [identifier]`
 
 All other IRC commands should be either manually inserted or implemented by the client. An ucp client may be used to connect to an IRC server, and an IRC client may also be used to connect to an ucp server.
+
+## Implementations
+The ucp is implemented in the following languages:
+
+ - Javascript (using [forge](https://github.com/digitalbazaar/forge) as dependency to support end-to-end encryption).
