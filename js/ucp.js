@@ -15,14 +15,14 @@
 }(this, function(eventlistener)
 {
     var ucp = {
-        MESSAGE_START: '\x1', // SOH
-        MESSAGE_TEXT: '\x2', // STX
-        MESSAGE_END: '\x3', // ETX
+        MESSAGE_START: '\x01', // SOH
+        MESSAGE_TEXT: '\x02', // STX
+        MESSAGE_END: '\x03', // ETX
         MESSAGE_SEPARATOR: '\x17', // ETB
         MESSAGE_HEAD_SEPARATOR: '\x1e', // US
-        ACKNOWLEDGE_MESSAGE: '\x6', // ACK
+        ACKNOWLEDGE_MESSAGE: '\x06', // ACK
         ERROR_MESSAGE: '\x15', // NAK
-        ENQUIRY_MESSAGE: '\x5', // ENQ
+        ENQUIRY_MESSAGE: '\x05', // ENQ
         LINE_SEPARATOR: '\n', // LF
         INTERNAL_LINE_SEPARATOR: '\r\v' // CR-VT
     };
