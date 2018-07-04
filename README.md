@@ -60,15 +60,11 @@ Commands should always conform to the following Regular Expression: `^[a-z-]+$`.
 `request [filename/identifier]`
   Some special identifiers include `public-key` to enable end-to-end encryption, `PONG <identifier>` to support connecting to an IRC-server.
 
-`encrypt [cipher/scheme]`
+`encrypt [cipher/scheme] [session-key]`
   Enables end-to-end encryption using the given cipher/scheme.
-  However, in order to establish a shared secret (session key), PKI is used.
+  This command is supposed to be encrypted using PKI.
   Use `request public-key` to automatically receive the public key from the other party.
-
-`session [key]`
-  Set a session key which may be used for end-to-end encryption.
-  This message should be encrypted using PKI.
-  Use `request public-key` to automatically receive the public key from the other party.
+  The session-key will be used for encrypting/decrypting messages.
 
 `join [channel] [password]`
   Only possible after a succesful `login`.
