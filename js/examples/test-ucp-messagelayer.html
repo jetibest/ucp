@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>test ucp.messagelayer</title>
+    </head>
+    <body>
+        
+        <h3>Send messages as A to B</h3>
+        <dl>
+            <dt>Raw text input:</dt>
+            <dd>
+                <textarea id="Input"></textarea>
+            </dd>
+        </dt>
+        <input type="button" onclick="sendinput();" value="Send raw text" />
+        
+        <br />
+        <dl>
+            <dt>Message input:</dt>
+            <dd>
+                <textarea id="MessageInput"></textarea>
+            </dd>
+        </dt>
+        <input type="button" onclick="sendmessageinput();" value="Send message" />
+        
+        <hr />
+        
+        <h3>Received messages (A and B)</h3>
+        <ul id="Output"></ul>
+        
+        <script src="../html.js"></script>
+        <script src="../eventlistener.js"></script>
+        <script src="../ucp.js"></script>
+        <script>
+        var incmsg = function(name)
+        {
+            return function(msg)
+            {
+                var output = id('Output');
+                var item = elem('li');
+                item.innerHTML = name + ' received: ' + strtohtml(JSON.stringify(msg).replace(/(^")|("$)/gi, ''));
+                output.appendChild(item);
+            };
+        };
+        var a = ucp.messagelayer.create();
+        var b = ucp.messagelayer.create();
+        a.write = b.receive;
+        b.write = a.receive;
+        a.on('message', incmsg('A'));
+        b.on('message', incmsg('B'));
+        
+        function sendinput()
+        {
+            var input = id('Input');
+            a.write(input.value);
+            input.value = '';
+        }
+        function sendmessageinput()
+        {
+            var input = id('MessageInput');
+            a.send(input.value);
+            input.value = '';
+        }
+        </script>
+    </body>
+</html>
