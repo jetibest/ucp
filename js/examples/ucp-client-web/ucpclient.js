@@ -2,20 +2,122 @@ window.ucpclient = {
     create: function(args)
     {
         args = args || {};
+        var ucp = window.ucp;
+        var eventlistener = window.eventlistener;
         
-        var ucpclient = eventlistener.create();
-        var ucp = ucp.create();
-        
-        ucpclient.connect = function()
+        var client = {};
+        client.connect = function(options)
         {
+            var connection = eventlistener.create({
+                secure: !!options.secure,
+                hostname: options.hostname,
+                port: options.port
+            });
+            var protocol = ucp.protocol.create();
+            var msglayer = ucp.messagelayer.create({
+                acktimeoutms: 10000,
+                write: function(data)
+                {
+                    connection.socket.send(data)
+                }
+            });
+            
+            msglayer.on('message', function(message)
+            {
+                protocol.parsemessage(connection.session, message);
+            });
+            
+            connection.disconnect = function()
+            {
+                if(connection.socket)
+                {
+                    connection.socket.close();
+                    delete connection.socket;
+                }
+            };
+            connection.reconnect = function()
+            {
+                connection.disconnect();
+                
+                var wsurl = 'ws' + (connection.secure ? 's' : '') + '://' + connection.hostname + ':' + connection.port;
+                var session = ucp.session.create();
+                session.on('pki-load', function(keys)
+                {
+                    connection.privkey = keys.privkey;
+                    connection.pubkey = keys.pubkey;
+                    connection.privkeypem = keys.privkeypem;
+                    connection.pubkeypem = keys.pubkeypem;
+                });
+                session.on('pki-error', function(err)
+                {
+                });
+                session.on('chatmessage', function(message)
+                {
+                    connection.fire('chatmessage', message);
+                });
+                session.on('file-start', function(file)
+                {
+                    session.file = {
+                        filename: file.filename,
+                        type: file.type,
+                        chunks: []
+                    };
+                });
+                session.on('file-chunk', function(chunk)
+                {
+                    session.file.chunks.push(chunk);
+                });
+                session.on('file-end', function()
+                {
+                    session.file.data = session.file.chunks.join(ucp.LINE_SEPARATOR);
+                    
+                    if(session.file.filename === 'pubkey')
+                    {
+                        connection.remotepubkey = session.file.data;
+                        protocol.encryptmessage(session, connection.remotepubkey, 'dummy');
+                        msglayer.send('encrypt AES-CBC ' + connection.encsessionkey);
+                    }
+                });
+                var ws = new WebSocket(wsurl);
+                ws.onopen = function()
+                {
+                    msglayer.send('request pubkey');
+                    connection.fire('socket-open');
+                };
+                ws.onerror = function()
+                {
+                };
+                ws.onmessage = function(e)
+                {
+                    var reader = new FileReader();
+                    reader.onload = function()
+                    {
+                        msglayer.receive(reader.result);
+                    };
+                    reader.readAsText(e.data);
+                };
+                ws.onclose = function()
+                {
+                    connection.fire('socket-close');
+                };
+                
+                connection.session = session;
+                connection.wsurl = wsurl;
+                connection.socket = ws;
+                
+                protocol.loadpki(session);
+            };
+            connection.sendmessage = function(message)
+            {
+                msglayer.send(protocol.encryptmessage(connection.session, connection.remotepubkey, protocol.messagetimestamp(message)));
+            };
+            connection.protocol = protocol;
+            connection.msglayer = msglayer;
+            
+            connection.reconnect();
+            
+            return connection;
         };
-        ucpclient.disconnect = function()
-        {
-        };
-        ucpclient.send = function()
-        {
-        };
-        
-        return ucpclient;
+        return client;
     }
 };
