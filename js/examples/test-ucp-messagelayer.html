@@ -38,7 +38,7 @@
             {
                 var output = id('Output');
                 var item = elem('li');
-                item.innerHTML = name + ' received: ' + strtohtml(JSON.stringify(msg).replace(/(^")|("$)/gi, ''));
+                item.innerHTML = name + ' received: ' + JSON.stringify(strtohtml(msg)).replace(/(^")|("$)/gi, '');
                 output.appendChild(item);
             };
         };
