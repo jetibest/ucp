@@ -16,10 +16,10 @@
 {
     var ucp = {
         MESSAGE_START: '\x01', // SOH
+        MESSAGE_HEAD_SEPARATOR: '\x1e', // US
         MESSAGE_TEXT: '\x02', // STX
         MESSAGE_END: '\x03', // ETX
-        MESSAGE_SEPARATOR: '\x17', // ETB
-        MESSAGE_HEAD_SEPARATOR: '\x1e', // US
+        MESSAGE_SEPARATOR: '\n', // \x17 ETB (LF for backwards compatibility)
         ACKNOWLEDGE_MESSAGE: '\x06', // ACK
         ERROR_MESSAGE: '\x15', // NAK
         ENQUIRY_MESSAGE: '\x05', // ENQ
@@ -49,7 +49,7 @@
             simplemessagelayer.write = args.write;
             simplemessagelayer.send = function(str)
             {
-                simplemessagelayer.write(str + '\n');
+                simplemessagelayer.write(str + ucp.MESSAGE_SEPARATOR);
             };
             simplemessagelayer.receive = function(str)
             {
@@ -60,7 +60,7 @@
                 var off = 0;
                 for(var i=0;i<str.length;++i)
                 {
-                    if(str.charAt(i) === '\n')
+                    if(str.charAt(i) === ucp.MESSAGE_SEPARATOR)
                     {
                         if(queue.length)
                         {
@@ -135,7 +135,11 @@
             var receivemessage = function(message)
             {
                 messagelayer.fire('debug-read', message.type + '(' + message.id + (message.previd ? ':' + message.previd : '') + '):"' + message.text + '"');
-                if(message.type === 'MSG')
+                if(message.type === 'SMSG')
+                {
+                    messagelayer.fire('message', message.text);
+                }
+                else if(message.type === 'MSG')
                 {
                     if(message.previd === prevreceivedid)
                     {
@@ -368,18 +372,34 @@
                     else if(v === ucp.MESSAGE_START)
                     {
                         state.msg = 1;
+                        queue = [];
                     }
                     else if(v === ucp.ACKNOWLEDGE_MESSAGE)
                     {
                         state.ack = 1;
+                        queue = [];
                     }
                     else if(v === ucp.ERROR_MESSAGE)
                     {
                         state.nak = 1;
+                        queue = [];
                     }
                     else if(v === ucp.ENQUIRY_MESSAGE)
                     {
                         state.enq = 1;
+                        queue = [];
+                    }
+                    else if(v === ucp.MESSAGE_SEPARATOR)
+                    {
+                        message.type = 'SMSG';
+                        message.text = queue.join('');
+                        receivemessage(message);
+                        message = {};
+                        queue = [];
+                    }
+                    else
+                    {
+                        queue.push(v);
                     }
                 }
             };
