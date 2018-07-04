@@ -5,26 +5,38 @@
     </head>
     <body>
         
-        <h3>Simulate incoming messages:</h3>
+        <h3>Send messages</h3>
         <dl>
-            <dt>Text input:</dt>
+            <dt>Raw text input:</dt>
             <dd>
                 <textarea id="Input"></textarea>
             </dd>
         </dt>
-        <input type="button" onclick="sendinput();" value="Send" />
+        <input type="button" onclick="sendinput();" value="Send raw text" />
+        
+        <br />
+        <dl>
+            <dt>Message input:</dt>
+            <dd>
+                <textarea id="MessageInput"></textarea>
+            </dd>
+        </dt>
+        <input type="button" onclick="sendmessageinput();" value="Send message" />
         
         <hr />
         
-        <h3>Received messages:</h3>
+        <h3>Received messages</h3>
         <ul id="Output"></ul>
         
         <script src="../html.js"></script>
         <script src="../eventlistener.js"></script>
         <script src="../ucp.js"></script>
         <script>
-        var msglayer = ucp.simplemessagelayer.create();
-        msglayer.on('message', function(msg)
+        var a = ucp.simplemessagelayer.create();
+        var b = ucp.simplemessagelayer.create({
+            writefnc: a.receive
+        });
+        b.on('message', function(msg)
         {
             var output = id('Output');
             var item = elem('li');
@@ -35,7 +47,13 @@
         function sendinput()
         {
             var input = id('Input');
-            msglayer.receive(input.value + '\n');
+            b.receive(input.value);
+            input.value = '';
+        }
+        function sendmessageinput()
+        {
+            var input = id('MessageInput');
+            a.send(input.value);
             input.value = '';
         }
         </script>
