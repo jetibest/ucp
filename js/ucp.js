@@ -41,6 +41,8 @@
     ucp.simplemessagelayer = {
         create: function(args)
         {
+            args = args || {};
+            
             var simplemessagelayer = eventlistener.create({});
             var writefnc = args.writefnc;
             var queue = [];
@@ -87,6 +89,8 @@
     ucp.messagelayer = {
         create: function(args)
         {
+            args = args || {};
+            
             var messagelayer = eventlistener.create({});
             var writefnc = args.writefnc;
             var acktimeoutms = args.acktimeoutms;
@@ -378,6 +382,8 @@
     ucp.protocol = {
         create: function(args)
         {
+            args = args || {};
+            
             var parsetimestamp = function(str)
             {
                 var tms = 0;
