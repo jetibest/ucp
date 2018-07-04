@@ -79,13 +79,16 @@ Commands should always conform to the following Regular Expression: `^[a-z-]+$`.
 `pong [identifier]`
   Sent in reply to a `ping` command. The identifier should be the same as the one that was received.
 
+`say [message]`
+  Send a message which will not be interpreted as a command, may not include linefeed characters (`\n`).
+
 ## IRC Compatibility
 The ucp is compatible with IRC (Internet Relay Chat) using the following aliases:
 
  - `HELP` -> `help`
  - `JOIN <channel1>{,<channel2>} [<key1>{,<key2>}]` -> `join [channel1] [key1]\njoin [channel2] [key2]`
  - `PASS <password>` `USER <user> <mode> <unused> <realname>` `NICK <realname~user>` -> `login [realname~user] [password]`
- - `PRIVMSG <msgtarget> <message>` -> `chat .\n[message]\n.` (or simply `[message]`)
+ - `PRIVMSG <msgtarget> <message>` -> `say [message]`
  - `PING <identifier>` -> `ping [identifier]`
  - `PONG <identifier>` -> `pong [identifier]`
 
