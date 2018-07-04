@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>test ucp.simplemessagelayer</title>
+    </head>
+    <body>
+        
+        <h3>Simulate incoming messages:</h3>
+        <dl>
+            <dt>Text input:</dt>
+            <dd>
+                <textarea id="Input"></textarea>
+            </dd>
+        </dt>
+        <input type="button" onclick="sendinput();" value="Send" />
+        
+        <hr />
+        
+        <h3>Received messages:</h3>
+        <ul id="Output"></ul>
+        
+        <script src="../html.js"></script>
+        <script src="../eventlistener.js"></script>
+        <script src="../ucp.js"></script>
+        <script>
+        var msglayer = ucp.simplemessagelayer.create();
+        msglayer.on('message', function(msg)
+        {
+            var output = id('Output');
+            var item = elem('li');
+            item.innerHTML = strtohtml(msg);
+            output.appendChild(item);
+        });
+        
+        function sendinput()
+        {
+            var input = id('Input');
+            msglayer.receive(input.value);
+            input.value = '';
+        }
+        </script>
+    </body>
+</html>
