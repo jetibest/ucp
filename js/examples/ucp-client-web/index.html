@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>UCP WebClient</title>
+    </head>
+    <body>
+    <div id="appcontainer"></div>
+    <script src="../../forge.min.js"></script>
+    <script src="../../html.js"></script>
+    <script src="../../eventlistener.js"></script>
+    <script src="../../ucp.js"></script>
+    <script src="ucpclient.js"></script>
+    <script src="app.js"></script>
+    <script>
+    (function(container)
+    {
+        app.create({
+            container: container,
+            ucpclient: ucpclient.create()
+        });
+    })(id('appcontainer'));
+    </script>
+    </body>
+</html>
