@@ -48,6 +48,8 @@
         b.write = a.receive;
         a.on('message', incmsg('A'));
         b.on('message', incmsg('B'));
+        a.on('debug-read', incmsg('A-debug-read'));
+        b.on('debug-read', incmsg('B-debug-read'));
         
         function sendinput()
         {
