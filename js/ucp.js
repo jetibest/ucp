@@ -77,6 +77,10 @@
                     queue.push(str.substring(off));
                 }
             };
+            simplemessagelayer.receivebuffer = function(buf)
+            {
+                return simplemessagelayer.receive(buf.toString('utf8'));
+            };
             return simplemessagelayer;
         }
     };
