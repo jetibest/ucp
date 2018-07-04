@@ -2,17 +2,17 @@
 {
     if(typeof define === 'function' && define.amd)
     {
-        define(['eventlistener'], factory);
+        define(['eventlistener', 'forge'], factory);
     }
     else if(typeof module === 'object' && module.exports)
     {
-        module.exports = factory(require('eventlistener'));
+        module.exports = factory(require('eventlistener', 'forge'));
     }
     else
     {
-        root.ucp = factory(root.eventlistener);
+        root.ucp = factory(root.eventlistener, root.forge);
     }
-}(this, function(eventlistener)
+}(this, function(eventlistener, forge)
 {
     var ucp = {
         MESSAGE_START: '\x01', // SOH
