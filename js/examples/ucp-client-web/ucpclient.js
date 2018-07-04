@@ -12,6 +12,7 @@ window.ucpclient = {
                 secure: !!options.secure,
                 hostname: options.hostname,
                 port: options.port
+                // todo, implement chained relay, separate session
             });
             var protocol = ucp.protocol.create();
             var msglayer = ucp.messagelayer.create({
@@ -76,6 +77,8 @@ window.ucpclient = {
                         connection.remotepubkey = session.file.data;
                         protocol.encryptmessage(session, connection.remotepubkey, 'dummy');
                         msglayer.send('encrypt AES-CBC ' + connection.encsessionkey);
+                        
+                        connection.fire('chat-ready');
                     }
                 });
                 var ws = new WebSocket(wsurl);
