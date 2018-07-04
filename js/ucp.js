@@ -224,7 +224,7 @@
                 var entry = {
                     id: id,
                     status: 0,
-                    previd: previd,
+                    previd: prev.id,
                     length: str.length,
                     data: data,
                     epochms: Date.now()
@@ -281,7 +281,7 @@
                     {
                         if(v === ucp.MESSAGE_TEXT)
                         {
-                            messages.previd = queue.join('');
+                            message.previd = queue.join('');
                             queue = [];
                             ++state.msg;
                         }
