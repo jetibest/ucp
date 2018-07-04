@@ -126,34 +126,43 @@
                     var e = historyarr[i];
                     if(!e.status && e.epochms + acktimeoutms < ems)
                     {
-                        messagelayer.write(ucp.ENQUIRY_MESSAGE + e.id + ucp.MESSAGE_SEPARATOR);
+                        var data = ucp.ENQUIRY_MESSAGE + e.id + ucp.MESSAGE_SEPARATOR;
+                        messagelayer.fire('debug', data);
+                        messagelayer.write(data);
                     }
                 }
             };
             var receivemessage = function(message)
             {
+                messagelayer.fire('debug-read', message.type + '(' + message.id + (message.previd ? ':' + message.previd : '') + '):"' + message.text + '"');
                 if(message.type === 'MSG')
                 {
                     if(message.previd === prevreceivedid)
                     {
                         prevreceivedid = message.id;
-                        messagelayer.write(ucp.ACKNOWLEDGE_MESSAGE + message.id + ucp.MESSAGE_SEPARATOR);
                         messagelayer.fire('message', message.text);
+                        messagelayer.write(ucp.ACKNOWLEDGE_MESSAGE + message.id + ucp.MESSAGE_SEPARATOR);
                     }
                     else
                     {
-                        messagelayer.write(ucp.ERROR_MESSAGE + prevreceivedid + ucp.MESSAGE_SEPARATOR);
+                        var data = ucp.ERROR_MESSAGE + prevreceivedid + ucp.MESSAGE_SEPARATOR;
+                        messagelayer.fire('debug-write', data);
+                        messagelayer.write(data);
                     }
                 }
                 else if(message.type === 'ENQ')
                 {
                     if(message.id === prevreceivedid)
                     {
-                        messagelayer.write(ucp.ACKNOWLEDGE_MESSAGE + prevreceivedid + ucp.MESSAGE_SEPARATOR);
+                        var data = ucp.ACKNOWLEDGE_MESSAGE + prevreceivedid + ucp.MESSAGE_SEPARATOR;
+                        messagelayer.fire('debug-write', data);
+                        messagelayer.write(data);
                     }
                     else
                     {
-                        messagelayer.write(ucp.ERROR_MESSAGE + prevreceivedid + ucp.MESSAGE_SEPARATOR);
+                        var data = ucp.ERROR_MESSAGE + prevreceivedid + ucp.MESSAGE_SEPARATOR;
+                        messagelayer.fire('debug-write', data);
+                        messagelayer.write(data);
                     }
                 }
                 else if(message.type === 'ACK')
@@ -198,6 +207,7 @@
                             }
                             else if(found)
                             {
+                                messagelayer.fire('debug-write', e.data);
                                 messagelayer.write(e.data);
                             }
                         }
@@ -231,6 +241,7 @@
                 };
                 historyarr.push(entry);
                 historymap[entry.identifier] = entry;
+                messagelayer.fire('debug-write', entry.data);
                 messagelayer.write(entry.data);
                 prev = entry;
                 checkhistory();
