@@ -33,7 +33,10 @@
                 mode: 'command',
                 eofmarker: '.',
                 login: '',
-                relay: ''
+                relay: '',
+                sessionkey: '',
+                encsessionkey: '',
+                scheme: ''
             };
             return eventlistener.create(ucpsession);
         }
@@ -442,7 +445,9 @@
                             '  request',
                             '  send',
                             '  login',
-                            '  relay'
+                            '  relay',
+                            '  encrypt',
+                            '  say'
                         ].join('\n'));
                         return true;
                     }
@@ -567,18 +572,180 @@
                         });
                         return true;
                     }
+                },
+                {
+                    regex: /^encrypt(| .*)(| .*)$/gi,
+                    handler: function($0, $1, $2)
+                    {
+                        this.scheme = $1.replace(/^ /gi, '');
+                        this.encsessionkey = $2.replace(/^ /gi, '');
+                        this.sessionkey = rsadecrypt(this.encsessionkey);
+                        return true;
+                    }
+                },
+                {
+                    regex: /^relay(| .*)$/gi,
+                    handler: function($0, $1)
+                    {
+                        this.mode = 'relay';
+                        this.relay = $1.replace(/^ /gi, '');
+                        return true;
+                    }
                 }
             ];
+            
+            var pki = {
+                privkey: args.privkey && typeof args.privkey === 'string' ? forge.pki.privateKeyFromPem(args.privkey) : '',
+                pubkey: args.pubkey && typeof args.pubkey === 'string' ? forge.pki.publicKeyFromPem(args.pubkey) : ''
+            };
+            var rsadecrypt = function(privkey, str)
+            {
+                return pki.privkey ? pki.privkey.decrypt(forge.util.hexToBytes(str)).toHex() : '';
+            };
+            var rsaencrypt = function(pubkey, str)
+            {
+                return pki.pubkey ? pki.pubkey.encrypt(str).toHex() : '';
+            };
+            var md = forge ? forge.md.sha256.create() : null;
+            var decipherCache = {};
+            var encipherCache = {};
+            var decryptmessage = function(scheme, sessionkey, str)
+            {
+                if(!forge)
+                {
+                    return str;
+                }
+                if(scheme === 'AES-CBC')
+                {
+                    if(str.length > 3 && str.substring(0, 3) === 'IV:')
+                    {
+                        var i = str.indexOf(',');
+                        if(i > 3)
+                        {
+                            var c = str.substring(i + 1);
+                            var dkey = scheme + ':' + sessionkey;
+                            var d = decipherCache[dkey];
+                            if(!d)
+                            {
+                                d = forge.decipher.createDecipher(scheme, forge.util.hexToBytes(sessionkey));
+                                decipherCache[dkey] = d;
+                            }
+                            d.start({iv: forge.util.hexToBytes(str.substring(3, i))});
+                            d.update(forge.util.createBuffer(forge.util.hexToBytes(str)));
+                            if(d.finish())
+                            {
+                                return forge.util.encodeUtf8(d.output);
+                            }
+                            else
+                            {
+                                return 'fail decrypt ' + str;
+                            }
+                        }
+                    }
+                }
+                return str;
+            };
+            var encryptmessage = function(scheme, sessionkey, str)
+            {
+                if(!forge)
+                {
+                    return str;
+                }
+                if(scheme === 'AES-CBC')
+                {
+                    md.update(forge.random.getBytesSync(32));
+                    var iv = md.digest();
+                    var ekey = scheme + ':' + sessionkey;
+                    var e = encipherCache[ekey];
+                    if(!e)
+                    {
+                        e = forge.cipher.createCipher(scheme, forge.util.hexToBytes(sessionkey));
+                        encipherCache[ekey] = e;
+                    }
+                    e.start({iv: iv});
+                    e.update(forge.util.createBuffer(str));
+                    e.finish();
+                    
+                    return 'IV:' + iv.toHex() + ',' + e.output.toHex();
+                }
+                return str;
+            };
             return {
+                loadpki: function(ucpsession, pemprivkey, pempubkey)
+                {
+                    if(!pemprivkey || !pempubkey)
+                    {
+                        forge.pki.rsa.generateKeyPair({bits: 4096, workers: 2}, function(err, keypair)
+                        {
+                            if(err || !keypair)
+                            {
+                                ucpsession.fire('pki-error', err);
+                                return;
+                            }
+                            pki.privkey = keypair.privateKey;
+                            pki.pubkey = keypair.publicKey;
+                            ucpsession.fire('pki-load', {
+                                privkey: pki.privkey,
+                                pubkey: pki.pubkey,
+                                privkeypem: forge.pki.privateKeyToPem(pki.privkey),
+                                pubkeypem: forge.pki.publicKeyToPem(pki.pubkey)
+                            });
+                        });
+                    }
+                    else
+                    {
+                        pki.privkey = forge.pki.privateKeyFromPem(pemprivkey);
+                        pki.pubkey = forge.pki.publicKeyFromPem(pempubkey);
+                        
+                        ucpsession.fire('pki-load', {
+                            privkey: pki.privkey,
+                            pubkey: pki.pubkey,
+                            privkeypem: pemprivkey,
+                            pubkeypem: pempubkey
+                        });
+                    }
+                },
+                encryptmessage: function(ucpsession, pubkey, message)
+                {
+                    if(!ucpsession.sessionkey)
+                    {
+                        md.update(forge.random.getBytesSync(32));
+                        ucpsession.sessionkey = md.digest().toHex();
+                        ucpsession.encsessionkey = rsaencrypt(ucpsession.sessionkey);
+                    }
+                    if(!ucpsession.scheme)
+                    {
+                        ucpsession.scheme = 'AES-CBC';
+                    }
+                    return encryptmessage(ucpsession.scheme, ucpsession.sessionkey, message);
+                },
                 messagetimestamp: function(epochms, message)
                 {
+                    if(typeof epochms === 'string')
+                    {
+                        message = epochms;
+                        epochms = 0;
+                    }
                     return '[' + new Date(epochms || Date.now()).toISOString() + '] ' + (message || '');
                 },
                 parsemessage: function(ucpsession, str)
                 {
-                    var message = parsetimestamp(str);
+                    var message = str;
+                    
+                    if(ucpsession.scheme && ucpsession.sessionkey)
+                    {
+                        message = decryptmessage(ucpsession.scheme, ucpsession.sessionkey, message);
+                    }
+                    
+                    if(ucpsession.mode === 'relay')
+                    {
+                        ucpsession.fire('relay', message);
+                        return;
+                    }
+                    
+                    message = parsetimestamp(str);
                     message.receivedepochms = Date.now();
-
+                    
                     if(ucpsession.mode === 'command')
                     {
                         var isParsed = false;
