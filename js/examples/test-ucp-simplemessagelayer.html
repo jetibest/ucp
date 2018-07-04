@@ -5,7 +5,7 @@
     </head>
     <body>
         
-        <h3>Send messages</h3>
+        <h3>Send messages as A to B</h3>
         <dl>
             <dt>Raw text input:</dt>
             <dd>
@@ -25,29 +25,34 @@
         
         <hr />
         
-        <h3>Received messages</h3>
+        <h3>Received messages (A and B)</h3>
         <ul id="Output"></ul>
         
         <script src="../html.js"></script>
         <script src="../eventlistener.js"></script>
         <script src="../ucp.js"></script>
         <script>
-        var a = ucp.simplemessagelayer.create();
-        var b = ucp.simplemessagelayer.create({
-            writefnc: a.receive
-        });
-        b.on('message', function(msg)
+        var incmsg = function(name)
         {
-            var output = id('Output');
-            var item = elem('li');
-            item.innerHTML = strtohtml(msg);
-            output.appendChild(item);
-        });
+            return function(msg)
+            {
+                var output = id('Output');
+                var item = elem('li');
+                item.innerHTML = name + ' received: ' + strtohtml(msg);
+                output.appendChild(item);
+            };
+        };
+        var a = ucp.simplemessagelayer.create();
+        var b = ucp.simplemessagelayer.create();
+        a.write = b.receive;
+        b.write = a.receive;
+        a.on('message', incmsg('A'));
+        b.on('message', incmsg('B'));
         
         function sendinput()
         {
             var input = id('Input');
-            b.receive(input.value);
+            a.write(input.value);
             input.value = '';
         }
         function sendmessageinput()
