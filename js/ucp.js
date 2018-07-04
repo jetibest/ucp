@@ -248,7 +248,7 @@
                     {
                         if(v === ucp.MESSAGE_HEAD_SEPARATOR)
                         {
-                            message.id = queue.jooin('');
+                            message.id = queue.join('');
                             message.type = 'MSG';
                             queue = [];
                             ++state.msg;
