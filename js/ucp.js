@@ -311,7 +311,7 @@
                         if(v === ucp.MESSAGE_SEPARATOR)
                         {
                             message.type = 'ACK';
-                            message.id = queue.joion('');
+                            message.id = queue.join('');
                             receivemessage(message);
                             message = {};
                             queue = [];
