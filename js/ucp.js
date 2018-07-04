@@ -93,7 +93,6 @@
             var queue = [];
             var message = {};
             var state = {};
-            var listeners = {};
             var id = 0;
             var prev = {id: ''};
             var historyarr = [];
@@ -293,7 +292,7 @@
                         if(v === ucp.MESSAGE_SEPARATOR)
                         {
                             message.text = queue.join('');
-                            messagelayer.receivemessage(message);
+                            receivemessage(message);
                             message = {};
                             queue = [];
                             state.msg = 0;
@@ -309,7 +308,7 @@
                         {
                             message.type = 'ACK';
                             message.id = queue.joion('');
-                            messagelayer.receivemessage(message);
+                            receivemessage(message);
                             message = {};
                             queue = [];
                             state.ack = 0;
@@ -325,7 +324,7 @@
                         {
                             message.type = 'NAK';
                             message.id = queue.join('');
-                            messagelayer.receivemessage(message);
+                            receivemessage(message);
                             message = {};
                             queue = [];
                             state.nak = 0;
@@ -341,7 +340,7 @@
                         {
                             message.type = 'ENQ';
                             message.id = queue.join('');
-                            messagelayer.receivemessage(message);
+                            receivemessage(message);
                             message = {};
                             queue = [];
                             state.enq = 0;
@@ -589,7 +588,7 @@
                     }
                 }
             };
-        };
+        }
     };
     return ucp;
 }));
