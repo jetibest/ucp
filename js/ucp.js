@@ -49,6 +49,7 @@
             var simplemessagelayer = eventlistener.create({});
             var queue = [];
             
+            simplemessagelayer.mode = 'simple';
             simplemessagelayer.write = args.write;
             simplemessagelayer.send = function(str)
             {
@@ -140,10 +141,12 @@
                 messagelayer.fire('debug-read', message.type + '(' + (message.id || '') + (message.previd ? ':' + message.previd : '') + '):"' + (message.text || '') + '"');
                 if(message.type === 'SMSG')
                 {
+                    messagelayer.mode = 'simple';
                     messagelayer.fire('message', message.text);
                 }
                 else if(message.type === 'MSG')
                 {
+                    messagelayer.mode = 'complex';
                     if(message.previd === prevreceivedid)
                     {
                         prevreceivedid = message.id;
@@ -188,6 +191,7 @@
                                 break;
                             }
                             delete historymap[e.id];
+                            messagelayer.fire('delivered', e.id);
                         }
                         if(i)
                         {
@@ -224,6 +228,7 @@
                             for(var i=0;i<index;++i)
                             {
                                 delete historymap[historyarr[i].id];
+                                messagelayer.fire('delivered', historyarr[i].id);
                             }
                             historyarr.splice(0, index);
                         }
@@ -233,6 +238,7 @@
                 }
             };
             
+            messagelayer.mode = 'complex';
             messagelayer.write = args.write;
             messagelayer.send = function(str)
             {
@@ -253,6 +259,7 @@
                 messagelayer.write(entry.data);
                 prev = entry;
                 checkhistory();
+                return id;
             };
             messagelayer.receive = function(str)
             {
