@@ -6,7 +6,7 @@
     }
     else if(typeof module === 'object' && module.exports)
     {
-        module.exports = factory(require('eventlistener'), require('forge'));
+        module.exports = factory(require('./eventlistener.js'), require('./forge.min.js'));
     }
     else
     {
@@ -19,12 +19,12 @@
         MESSAGE_HEAD_SEPARATOR: '\x1f', // US
         MESSAGE_TEXT: '\x02', // STX
         MESSAGE_END: '\x03', // ETX
-        MESSAGE_SEPARATOR: '\n', // \x17 ETB (LF for backwards compatibility)
+        MESSAGE_SEPARATOR: '\n', // LF - for backwards compatibility
+        MESSAGE_LINEFEED: '\r\v', // CR-VT
         ACKNOWLEDGE_MESSAGE: '\x06', // ACK
         ERROR_MESSAGE: '\x15', // NAK
         ENQUIRY_MESSAGE: '\x05', // ENQ
-        LINE_SEPARATOR: '\n', // LF
-        INTERNAL_LINE_SEPARATOR: '\r\v' // CR-VT
+        LINE_SEPARATOR: '\n' // LF
     };
     ucp.session = {
         create: function(args)
@@ -52,7 +52,7 @@
             simplemessagelayer.write = args.write;
             simplemessagelayer.send = function(str)
             {
-                simplemessagelayer.write(str + ucp.MESSAGE_SEPARATOR);
+                simplemessagelayer.write(str.replace(ucp.MESSAGE_SEPARATOR, ucp.MESSAGE_LINEFEED) + ucp.MESSAGE_SEPARATOR);
             };
             simplemessagelayer.receive = function(str)
             {
@@ -67,12 +67,12 @@
                     {
                         if(queue.length)
                         {
-                            simplemessagelayer.fire('message', queue.join('') + str.substring(off, i).replace(/\r$/g, ''));
+                            simplemessagelayer.fire('message', (queue.join('') + str.substring(off, i).replace(/\r$/g, '')).replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR));
                             queue = [];
                         }
                         else
                         {
-                            simplemessagelayer.fire('message', str.substring(off, i).replace(/\r$/g, ''));
+                            simplemessagelayer.fire('message', str.substring(off, i).replace(/\r$/g, '').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR));
                         }
                         off = i + 1;
                     }
@@ -249,7 +249,7 @@
                 historyarr.push(entry);
                 historymap[entry.identifier] = entry;
                 messagelayer.fire('debug-write', entry.data);
-                messagelayer.write(entry.data);
+                messagelayer.write(entry.data.replace(ucp.MESSAGE_SEPARATOR, ucp.MESSAGE_LINEFEED));
                 prev = entry;
                 checkhistory();
             };
@@ -313,7 +313,7 @@
                         // TODO: use message.length to look ahead in buffer
                         if(v === ucp.MESSAGE_SEPARATOR)
                         {
-                            message.text = queue.join('');
+                            message.text = queue.join('').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR);
                             receivemessage(message);
                             message = {};
                             queue = [];
@@ -329,7 +329,7 @@
                         if(v === ucp.MESSAGE_SEPARATOR)
                         {
                             message.type = 'ACK';
-                            message.id = queue.join('');
+                            message.id = queue.join('').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR);
                             receivemessage(message);
                             message = {};
                             queue = [];
@@ -345,7 +345,7 @@
                         if(v === ucp.MESSAGE_SEPARATOR)
                         {
                             message.type = 'NAK';
-                            message.id = queue.join('');
+                            message.id = queue.join('').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR);
                             receivemessage(message);
                             message = {};
                             queue = [];
@@ -361,7 +361,7 @@
                         if(v === ucp.MESSAGE_SEPARATOR)
                         {
                             message.type = 'ENQ';
-                            message.id = queue.join('');
+                            message.id = queue.join('').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR);
                             receivemessage(message);
                             message = {};
                             queue = [];
