@@ -108,7 +108,7 @@ window.app = {
             conn.on('chatmessage', function(message)
             {
                 var row = elem('div');
-                row.innerHTML = 'Message received: ' + strtohtml(''+ message);
+                row.innerHTML = 'Message received: ' + strtohtml(JSON.stringify(message));
                 msgcontainer.appendChild(row);
             });
             conn.on('chat-ready', function()
