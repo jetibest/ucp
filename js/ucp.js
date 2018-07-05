@@ -633,11 +633,11 @@
             };
             var rsadecrypt = function(privkey, str)
             {
-                return privkey ? privkey.decrypt(forge.util.hexToBytes(str)).toHex() : '';
+                return privkey ? forge.util.bytesToHex(privkey.decrypt(forge.util.hexToBytes(str))) : '';
             };
             var rsaencrypt = function(pubkey, str)
             {
-                return pubkey ? pubkey.encrypt(str).toHex() : '';
+                return pubkey ? forge.util.bytesToHex(pubkey.encrypt(str)) : '';
             };
             var md = forge ? forge.md.sha256.create() : null;
             var decipherCache = {};
