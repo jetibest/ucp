@@ -534,7 +534,7 @@
                 },
                 {
                     regex: /^(fail|failed|failure)(| .*)$/gi,
-                    handler: function()
+                    handler: function($0, $1, $2)
                     {
                         this.fire('command-fail', $2.replace(/^ /gi, ''));
                         return true;
