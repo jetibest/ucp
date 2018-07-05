@@ -677,7 +677,6 @@
                         var i = str.indexOf(',');
                         if(i > 3)
                         {
-                            var c = str.substring(i + 1);
                             var dkey = scheme + ':' + sessionkey;
                             var d = decipherCache[dkey];
                             if(!d)
@@ -686,7 +685,7 @@
                                 decipherCache[dkey] = d;
                             }
                             d.start({iv: forge.util.hexToBytes(str.substring(3, i))});
-                            d.update(forge.util.createBuffer(forge.util.hexToBytes(str)));
+                            d.update(forge.util.createBuffer(forge.util.hexToBytes(str.substring(i + 1))));
                             if(d.finish())
                             {
                                 return forge.util.encodeUtf8(d.output);
@@ -802,7 +801,7 @@
                         return;
                     }
                     
-                    message = parsetimestamp(str);
+                    message = parsetimestamp(message);
                     message.receivedepochms = Date.now();
                     
                     if(ucpsession.mode === 'command')
