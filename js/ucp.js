@@ -630,7 +630,14 @@
             {
                 if(typeof privkey === 'string' || (typeof Buffer !== 'undefined' && privkey instanceof Buffer))
                 {
-                    privkey = forge.pki.privateKeyFromPem(privkey) || privkey;
+                    try
+                    {
+                        privkey = forge.pki.privateKeyFromPem(privkey) || privkey;
+                    }
+                    catch(err)
+                    {
+                        return null;
+                    }
                 }
                 return privkey;
             };
@@ -638,7 +645,14 @@
             {
                 if(typeof pubkey === 'string' || (typeof Buffer !== 'undefined' && pubkey instanceof Buffer))
                 {
-                    pubkey = forge.pki.publicKeyFromPem(pubkey) || pubkey;
+                    try
+                    {
+                        pubkey = forge.pki.publicKeyFromPem(pubkey) || pubkey;
+                    }
+                    catch(err)
+                    {
+                        return null;
+                    }
                 }
                 return pubkey;
             };
@@ -749,25 +763,39 @@
                             }
                             pki.privkey = keypair.privateKey;
                             pki.pubkey = keypair.publicKey;
-                            ucpsession.fire('pki-load', {
-                                privkey: pki.privkey,
-                                pubkey: pki.pubkey,
-                                privkeypem: forge.pki.privateKeyToPem(pki.privkey),
-                                pubkeypem: forge.pki.publicKeyToPem(pki.pubkey)
-                            });
+                            try
+                            {
+                                ucpsession.fire('pki-load', {
+                                    privkey: pki.privkey,
+                                    pubkey: pki.pubkey,
+                                    privkeypem: forge.pki.privateKeyToPem(pki.privkey),
+                                    pubkeypem: forge.pki.publicKeyToPem(pki.pubkey)
+                                });
+                            }
+                            catch(err)
+                            {
+                                ucpsession.fire('pki-error', err);
+                            }
                         });
                     }
                     else
                     {
-                        pki.privkey = forge.pki.privateKeyFromPem(pemprivkey);
-                        pki.pubkey = forge.pki.publicKeyFromPem(pempubkey);
-                        
-                        ucpsession.fire('pki-load', {
-                            privkey: pki.privkey,
-                            pubkey: pki.pubkey,
-                            privkeypem: pemprivkey,
-                            pubkeypem: pempubkey
-                        });
+                        try
+                        {
+                            pki.privkey = forge.pki.privateKeyFromPem(pemprivkey);
+                            pki.pubkey = forge.pki.publicKeyFromPem(pempubkey);
+
+                            ucpsession.fire('pki-load', {
+                                privkey: pki.privkey,
+                                pubkey: pki.pubkey,
+                                privkeypem: pemprivkey,
+                                pubkeypem: pempubkey
+                            });
+                        }
+                        catch(err)
+                        {
+                            ucpsession.fire('pki-error', err);
+                        }
                     }
                 },
                 encryptmessage: function(ucpsession, pubkey, message)
