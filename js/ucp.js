@@ -641,11 +641,25 @@
             };
             var rsadecrypt = function(privkey, str)
             {
-                return privkey ? forge.util.bytesToHex(privkey.decrypt(forge.util.hexToBytes(str))) : '';
+                try
+                {
+                    return privkey ? forge.util.bytesToHex(privkey.decrypt(forge.util.hexToBytes(str))) : '';
+                }
+                catch(err)
+                {
+                    return null;
+                }
             };
             var rsaencrypt = function(pubkey, str)
             {
-                return pubkey ? forge.util.bytesToHex(pubkey.encrypt(str)) : '';
+                try
+                {
+                    return pubkey ? forge.util.bytesToHex(pubkey.encrypt(str)) : '';
+                }
+                catch(err)
+                {
+                    return null;
+                }
             };
             var md = forge ? forge.md.sha256.create() : null;
             var decipherCache = {};
@@ -762,7 +776,7 @@
                     {
                         ucpsession.scheme = 'AES-CBC';
                     }
-                    return encryptmessage(ucpsession.scheme, ucpsession.sessionkey, message);
+                    return encryptmessage(ucpsession.scheme, ucpsession.sessionkey, message) || '';
                 },
                 messagetimestamp: function(epochms, message)
                 {
