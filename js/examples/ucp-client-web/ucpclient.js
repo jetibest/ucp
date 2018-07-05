@@ -68,7 +68,7 @@ window.ucpclient = {
                 });
                 session.on('file-chunk', function(chunk)
                 {
-                    session.file.chunks.push(chunk);
+                    session.file.chunks.push(chunk.text);
                 });
                 session.on('file-end', function()
                 {
