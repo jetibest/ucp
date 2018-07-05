@@ -41,6 +41,7 @@ window.ucpclient = {
                 connection.disconnect();
                 
                 var wsurl = 'ws' + (connection.secure ? 's' : '') + '://' + connection.hostname + ':' + connection.port;
+                var remotesession = ucp.session.create();
                 var session = ucp.session.create();
                 session.on('pki-load', function(keys)
                 {
@@ -77,8 +78,8 @@ window.ucpclient = {
                     if(session.file.filename === 'pubkey')
                     {
                         session.pubkey = session.file.data;
-                        protocol.encryptmessage(session, session.pubkey, 'dummy');
-                        msglayer.send('encrypt AES-CBC ' + session.encsessionkey);
+                        protocol.encryptmessage(remotesession, session.pubkey, 'dummy');
+                        msglayer.send('encrypt AES-CBC ' + remotesession.encsessionkey);
                         
                         connection.fire('chat-ready');
                     }
@@ -125,6 +126,7 @@ window.ucpclient = {
                     connection.fire('socket-close');
                 };
                 
+                connection.remotesession = remotesession;
                 connection.session = session;
                 connection.wsurl = wsurl;
                 connection.socket = ws;
@@ -133,7 +135,7 @@ window.ucpclient = {
             };
             connection.sendmessage = function(message)
             {
-                msglayer.send(protocol.encryptmessage(connection.session, connection.session.pubkey, protocol.messagetimestamp(message)));
+                msglayer.send(protocol.encryptmessage(connection.remotesession, connection.session.pubkey, protocol.messagetimestamp(message)));
             };
             connection.protocol = protocol;
             connection.msglayer = msglayer;
