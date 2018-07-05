@@ -76,9 +76,9 @@ window.ucpclient = {
                     
                     if(session.file.filename === 'pubkey')
                     {
-                        connection.remotepubkey = session.file.data;
-                        protocol.encryptmessage(session, connection.remotepubkey, 'dummy');
-                        msglayer.send('encrypt AES-CBC ' + connection.encsessionkey);
+                        session.pubkey = session.file.data;
+                        protocol.encryptmessage(session, session.pubkey, 'dummy');
+                        msglayer.send('encrypt AES-CBC ' + session.encsessionkey);
                         
                         connection.fire('chat-ready');
                     }
@@ -113,7 +113,7 @@ window.ucpclient = {
             };
             connection.sendmessage = function(message)
             {
-                msglayer.send(protocol.encryptmessage(connection.session, connection.remotepubkey, protocol.messagetimestamp(message)));
+                msglayer.send(protocol.encryptmessage(connection.session, connection.session.pubkey, protocol.messagetimestamp(message)));
             };
             connection.protocol = protocol;
             connection.msglayer = msglayer;
