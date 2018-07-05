@@ -147,7 +147,7 @@
                     if(message.previd === prevreceivedid)
                     {
                         prevreceivedid = message.id;
-                        messagelayer.fire('message', message.text.replace(/\r$/gi, ''));
+                        messagelayer.fire('message', message.text);
                         messagelayer.write(ucp.ACKNOWLEDGE_MESSAGE + message.id + ucp.MESSAGE_SEPARATOR);
                     }
                     else
@@ -237,7 +237,7 @@
             messagelayer.send = function(str)
             {
                 ++id;
-                var data = ucp.MESSAGE_START + id + ucp.MESSAGE_HEAD_SEPARATOR + str.length + ucp.MESSAGE_HEAD_SEPARATOR + prev.id + ucp.MESSAGE_TEXT + str + ucp.MESSAGE_SEPARATOR;
+                var data = ucp.MESSAGE_START + id + ucp.MESSAGE_HEAD_SEPARATOR + str.length + ucp.MESSAGE_HEAD_SEPARATOR + prev.id + ucp.MESSAGE_TEXT + str.replace(ucp.MESSAGE_SEPARATOR, ucp.MESSAGE_LINEFEED) + ucp.MESSAGE_SEPARATOR;
                 var entry = {
                     id: id,
                     status: 0,
@@ -249,7 +249,7 @@
                 historyarr.push(entry);
                 historymap[entry.identifier] = entry;
                 messagelayer.fire('debug-write', entry.data);
-                messagelayer.write(entry.data.replace(ucp.MESSAGE_SEPARATOR, ucp.MESSAGE_LINEFEED));
+                messagelayer.write(entry.data);
                 prev = entry;
                 checkhistory();
             };
@@ -313,7 +313,7 @@
                         // TODO: use message.length to look ahead in buffer
                         if(v === ucp.MESSAGE_SEPARATOR)
                         {
-                            message.text = queue.join('').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR);
+                            message.text = queue.join('').replace(/\r$/gi, '').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR);
                             receivemessage(message);
                             message = {};
                             queue = [];
@@ -329,7 +329,7 @@
                         if(v === ucp.MESSAGE_SEPARATOR)
                         {
                             message.type = 'ACK';
-                            message.id = queue.join('').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR);
+                            message.id = queue.join('').replace(/\r$/gi, '').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR);
                             receivemessage(message);
                             message = {};
                             queue = [];
@@ -345,7 +345,7 @@
                         if(v === ucp.MESSAGE_SEPARATOR)
                         {
                             message.type = 'NAK';
-                            message.id = queue.join('').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR);
+                            message.id = queue.join('').replace(/\r$/gi, '').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR);
                             receivemessage(message);
                             message = {};
                             queue = [];
@@ -361,7 +361,7 @@
                         if(v === ucp.MESSAGE_SEPARATOR)
                         {
                             message.type = 'ENQ';
-                            message.id = queue.join('').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR);
+                            message.id = queue.join('').replace(/\r$/gi, '').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR);
                             receivemessage(message);
                             message = {};
                             queue = [];
@@ -395,7 +395,7 @@
                     else if(v === ucp.MESSAGE_SEPARATOR)
                     {
                         message.type = 'SMSG';
-                        message.text = queue.join('');
+                        message.text = queue.join('').replace(/\r$/gi, '').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR);
                         receivemessage(message);
                         message = {};
                         queue = [];
