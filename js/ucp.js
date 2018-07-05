@@ -6,7 +6,7 @@
     }
     else if(typeof module === 'object' && module.exports)
     {
-        module.exports = factory(require('eventlistener', 'forge'));
+        module.exports = factory(require('eventlistener'), require('forge'));
     }
     else
     {
