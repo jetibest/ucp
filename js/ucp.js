@@ -16,7 +16,7 @@
 {
     var ucp = {
         MESSAGE_START: '\x01', // SOH
-        MESSAGE_HEAD_SEPARATOR: '\x1e', // US
+        MESSAGE_HEAD_SEPARATOR: '\x1f', // US
         MESSAGE_TEXT: '\x02', // STX
         MESSAGE_END: '\x03', // ETX
         MESSAGE_SEPARATOR: '\n', // \x17 ETB (LF for backwards compatibility)
