@@ -52,7 +52,7 @@
             simplemessagelayer.write = args.write;
             simplemessagelayer.send = function(str)
             {
-                simplemessagelayer.write(str.replace(ucp.MESSAGE_SEPARATOR, ucp.MESSAGE_LINEFEED) + ucp.MESSAGE_SEPARATOR);
+                simplemessagelayer.write((''+str).replace(ucp.MESSAGE_SEPARATOR, ucp.MESSAGE_LINEFEED) + ucp.MESSAGE_SEPARATOR);
             };
             simplemessagelayer.receive = function(str)
             {
