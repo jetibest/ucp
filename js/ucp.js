@@ -549,7 +549,7 @@
                     }
                 },
                 {
-                    regex: /request(| .*)/gi,
+                    regex: /^request(| .*)$/gi,
                     handler: function($0, $1)
                     {
                         var filename = $1.replace(/^ /gi, '');
@@ -561,7 +561,7 @@
                     }
                 },
                 {
-                    regex: /send(| [^ ]+)(| [^ ]+)(| .*)/gi,
+                    regex: /^send(| [^ ]+)(| [^ ]+)(| .*)$/gi,
                     handler: function($0, $1, $2, $3)
                     {
                         this.mode = 'send';
