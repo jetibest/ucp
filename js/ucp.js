@@ -601,6 +601,10 @@
                 {
                     return privkey;
                 }
+                if(typeof Buffer !== 'undefined' && privkey instanceof Buffer)
+                {
+                    return privkey.toString();
+                }
                 return forge.pki.privateKeyToPem(privkey) || privkey;
             };
             var exportpubkey = function(pubkey)
@@ -609,11 +613,15 @@
                 {
                     return pubkey;
                 }
+                if(typeof Buffer !== 'undefined' && pubkey instanceof Buffer)
+                {
+                    return pubkey.toString();
+                }
                 return forge.pki.publicKeyToPem(pubkey) || pubkey;
             };
             var importprivkey = function(privkey)
             {
-                if(typeof privkey === 'string')
+                if(typeof privkey === 'string' || (typeof Buffer !== 'undefined' && privkey instanceof Buffer))
                 {
                     privkey = forge.pki.privateKeyFromPem(privkey) || privkey;
                 }
@@ -621,7 +629,7 @@
             };
             var importpubkey = function(pubkey)
             {
-                if(typeof pubkey === 'string')
+                if(typeof pubkey === 'string' || (typeof Buffer !== 'undefined' && pubkey instanceof Buffer))
                 {
                     pubkey = forge.pki.publicKeyFromPem(pubkey) || pubkey;
                 }
