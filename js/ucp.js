@@ -709,7 +709,7 @@
                 if(scheme === 'AES-CBC')
                 {
                     md.update(forge.random.getBytesSync(32));
-                    var iv = md.digest();
+                    var ivhex = md.digest().toHex();
                     var ekey = scheme + ':' + sessionkey;
                     var e = encipherCache[ekey];
                     if(!e)
@@ -717,11 +717,11 @@
                         e = forge.cipher.createCipher(scheme, forge.util.hexToBytes(sessionkey));
                         encipherCache[ekey] = e;
                     }
-                    e.start({iv: iv});
+                    e.start({iv: forge.util.hexToBytes(ivhex)});
                     e.update(forge.util.createBuffer(str));
                     e.finish();
                     
-                    return 'IV:' + iv.toHex() + ',' + e.output.toHex();
+                    return 'IV:' + ivhex + ',' + e.output.toHex();
                 }
                 return str;
             };
