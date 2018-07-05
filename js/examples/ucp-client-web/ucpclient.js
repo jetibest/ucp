@@ -48,6 +48,8 @@ window.ucpclient = {
                     connection.pubkey = keys.pubkey;
                     connection.privkeypem = keys.privkeypem;
                     connection.pubkeypem = keys.pubkeypem;
+                    
+                    msglayer.send('request pubkey');
                 });
                 session.on('pki-error', function(err)
                 {
@@ -84,7 +86,6 @@ window.ucpclient = {
                 var ws = new WebSocket(wsurl);
                 ws.onopen = function()
                 {
-                    msglayer.send('request pubkey');
                     connection.fire('socket-open');
                 };
                 ws.onerror = function()
