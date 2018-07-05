@@ -87,9 +87,16 @@ window.ucpclient = {
                 {
                     if(file.filename === 'pubkey' || file.filename === 'public-key')
                     {
-                        msglayer.send('send EOF pem pubkey');
-                        msglayer.send(connection.pubkeypem);
-                        msglayer.send('EOF');
+                        if(connection.pubkeypem)
+                        {
+                            msglayer.send('send EOF pem pubkey');
+                            msglayer.send(connection.pubkeypem);
+                            msglayer.send('EOF');
+                        }
+                        else
+                        {
+                            msglayer.send('fail request ' + file.filename);
+                        }
                     }
                 });
                 session.on('request-message', function(message)
