@@ -6,7 +6,7 @@
     }
     else if(typeof module === 'object' && module.exports)
     {
-        module.exports = factory(require('./eventlistener.js'), require('./forge.min.js'));
+        module.exports = factory(require('./eventlistener.js'), require('forge'));
     }
     else
     {
