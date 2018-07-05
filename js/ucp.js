@@ -2,7 +2,7 @@
 {
     if(typeof define === 'function' && define.amd)
     {
-        define(['eventlistener', 'node-forge'], factory);
+        define(['eventlistener', 'forge.min'], factory);
     }
     else if(typeof module === 'object' && module.exports)
     {
