@@ -95,7 +95,7 @@
             args = args || {};
             
             var messagelayer = eventlistener.create({});
-            var acktimeoutms = args.acktimeoutms;
+            var acktimeoutms = args.acktimeoutms || 10000;
             var queue = [];
             var message = {};
             var state = {};
