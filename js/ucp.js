@@ -682,7 +682,7 @@
                             var d = decipherCache[dkey];
                             if(!d)
                             {
-                                d = forge.decipher.createDecipher(scheme, forge.util.hexToBytes(sessionkey));
+                                d = forge.cipher.createDecipher(scheme, forge.util.hexToBytes(sessionkey));
                                 decipherCache[dkey] = d;
                             }
                             d.start({iv: forge.util.hexToBytes(str.substring(3, i))});
