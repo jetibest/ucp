@@ -130,14 +130,14 @@
                     if(!e.status && e.epochms + acktimeoutms < ems)
                     {
                         var data = ucp.ENQUIRY_MESSAGE + e.id + ucp.MESSAGE_SEPARATOR;
-                        messagelayer.fire('debug', data);
+                        messagelayer.fire('debug-write', data);
                         messagelayer.write(data);
                     }
                 }
             };
             var receivemessage = function(message)
             {
-                messagelayer.fire('debug-read', message.type + '(' + message.id + (message.previd ? ':' + message.previd : '') + '):"' + message.text + '"');
+                messagelayer.fire('debug-read', message.type + '(' + (message.id || '') + (message.previd ? ':' + message.previd : '') + '):"' + (message.text || '') + '"');
                 if(message.type === 'SMSG')
                 {
                     messagelayer.fire('message', message.text);
