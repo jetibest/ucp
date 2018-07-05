@@ -643,7 +643,7 @@
             {
                 try
                 {
-                    return privkey ? forge.util.bytesToHex(privkey.decrypt(forge.util.hexToBytes(str))) : '';
+                    return privkey ? privkey.decrypt(forge.util.hexToBytes(str)) : '';
                 }
                 catch(err)
                 {
