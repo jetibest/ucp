@@ -561,7 +561,7 @@
                     }
                 },
                 {
-                    regex: /^send(| [^ ]+)(| [^ ]+)(| .*)$/gi,
+                    regex: /^send(| [^ ]*)(| [^ ]*)(| .*)$/gi,
                     handler: function($0, $1, $2, $3)
                     {
                         this.mode = 'send';
