@@ -43,6 +43,17 @@ window.ucpclient = {
                 var wsurl = 'ws' + (connection.secure ? 's' : '') + '://' + connection.hostname + ':' + connection.port;
                 var remotesession = ucp.session.create();
                 var session = ucp.session.create();
+                var sendwrapper = function(msg)
+                {
+                    if(session.pubkey && remotesession.sessionkey)
+                    {
+                        return msglayer.send(protocol.encryptmessage(remotesession, session.pubkey, msg));
+                    }
+                    else
+                    {
+                        return msglayer.send(msg);
+                    }
+                };
                 session.on('pki-load', function(keys)
                 {
                     connection.privkey = keys.privkey;
@@ -50,7 +61,7 @@ window.ucpclient = {
                     connection.privkeypem = keys.privkeypem;
                     connection.pubkeypem = keys.pubkeypem;
                     
-                    msglayer.send('request pubkey');
+                    sendwrapper('request pubkey');
                 });
                 session.on('pki-error', function(err)
                 {
@@ -79,7 +90,7 @@ window.ucpclient = {
                     {
                         session.pubkey = session.file.data;
                         protocol.encryptmessage(remotesession, session.pubkey, 'dummy');
-                        msglayer.send('encrypt AES-CBC ' + remotesession.encsessionkey);
+                        sendwrapper('encrypt AES-CBC ' + remotesession.encsessionkey);
                         
                         connection.fire('chat-ready');
                     }
@@ -90,19 +101,19 @@ window.ucpclient = {
                     {
                         if(connection.pubkeypem)
                         {
-                            msglayer.send('send EOF pem pubkey');
-                            msglayer.send(connection.pubkeypem);
-                            msglayer.send('EOF');
+                            sendwrapper('send EOF pem pubkey');
+                            sendwrapper(connection.pubkeypem);
+                            sendwrapper('EOF');
                         }
                         else
                         {
-                            msglayer.send('fail request ' + file.filename);
+                            sendwrapper('fail request ' + file.filename);
                         }
                     }
                 });
                 session.on('request-message', function(message)
                 {
-                    msglayer.send(message);
+                    sendwrapper(message);
                 });
                 var ws = new WebSocket(wsurl);
                 ws.onopen = function()
