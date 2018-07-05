@@ -597,6 +597,7 @@
                     {
                         this.mode = 'relay';
                         this.relay = $1.replace(/^ /gi, '');
+                        this.fire('relay');
                         return true;
                     }
                 }
@@ -832,7 +833,7 @@
                     
                     if(ucpsession.mode === 'relay')
                     {
-                        ucpsession.fire('relay', message);
+                        ucpsession.fire('relay-message', message);
                         return;
                     }
                     
