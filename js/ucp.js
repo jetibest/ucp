@@ -2,11 +2,11 @@
 {
     if(typeof define === 'function' && define.amd)
     {
-        define(['eventlistener', 'forge'], factory);
+        define(['eventlistener', 'node-forge'], factory);
     }
     else if(typeof module === 'object' && module.exports)
     {
-        module.exports = factory(require('./eventlistener.js'), require('forge'));
+        module.exports = factory(require('./eventlistener.js'), require('node-forge'));
     }
     else
     {
