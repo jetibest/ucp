@@ -115,7 +115,7 @@ window.app = {
             {
                 if(statuslabel.innerHTML === 'connected')
                 {
-                    statuslabel.innerHTML = 'ready to chat with end-to-end encryption using pubkey:<br />' + conn.remotepubkey.replace(/\n/gi, '<br />');
+                    statuslabel.innerHTML = 'ready to chat with end-to-end encryption using pubkey:<br />' + conn.session.pubkey.replace(/\n/gi, '<br />');
                 }
             });
         };
