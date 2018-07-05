@@ -83,6 +83,19 @@ window.ucpclient = {
                         connection.fire('chat-ready');
                     }
                 });
+                session.on('request-file', function(file)
+                {
+                    if(file.filename === 'pubkey' || file.filename === 'public-key')
+                    {
+                        msglayer.send('send EOF pem pubkey');
+                        msglayer.send(connection.pubkeypem);
+                        msglayer.send('EOF');
+                    }
+                });
+                session.on('request-message', function(message)
+                {
+                    msglayer.send(message);
+                });
                 var ws = new WebSocket(wsurl);
                 ws.onopen = function()
                 {
