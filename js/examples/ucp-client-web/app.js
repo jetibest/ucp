@@ -40,16 +40,84 @@ window.app = {
         
         connectbut.onclick = function()
         {
+            var panel = elem('div');
             var conn = ucpclient.connect({
                 hostname: hostnamefield.value,
                 port: portfield.value,
                 secure: false
             });
-            conn.on('socket-open', function(){});
-            conn.on('socket-close', function(){});
-            conn.on('chatmessage', function(message){});
-            conn.on('chatready', function(){});// handshake with encryption and everything done, so we can start messaging
-            // create new panel for each connection, with reconn, disconn buttons
+            
+            var head = elem('h3');
+            head.innerHTML = hostnamefield.value + ':' + portfield.value;
+            panel.appendChild(head);
+            
+            var connbut = elem('input');
+            connbut.type = 'button';
+            connbut.value = 'reconnect';
+            connbut.onclick = function()
+            {
+                conn.reconnect();
+            };
+            panel.appendChild(connbut);
+            
+            var dcbut = elem('input');
+            dcbut.type = 'button';
+            dcbut.value = 'disconnect';
+            dcbut.onclick = function()
+            {
+                conn.disconnect();
+            };
+            panel.appendChild(dcbut);
+            
+            var statuslabel = elem('div');
+            statuslabel.innerHTML = 'no status';
+            panel.appendChild(statuslabel);
+            
+            var msgcontainer = elem('div');
+            panel.appendChild(msgcontainer);
+            
+            var inputbar = elem('div');
+            var input = elem('input');
+            input.type = 'text';
+            inputbar.appendChild(input);
+            
+            var sendbut = elem('input');
+            sendbut.type = 'button';
+            sendbut.value = 'Send';
+            sendbut.onclick = function()
+            {
+                conn.sendmessage(input.value);
+                input.value = '';
+            };
+            inputbar.appendChild(sendbut);
+            
+            panel.appendChild(inputbar);
+            
+            container.appendChild(panel);
+            
+            container.appendChild(elem('hr'));
+            
+            conn.on('socket-open', function()
+            {
+                statuslabel.innerHTML = 'connected';
+            });
+            conn.on('socket-close', function()
+            {
+                statuslabel.innerHTML = 'disconnected';
+            });
+            conn.on('chatmessage', function(message)
+            {
+                var row = elem('div');
+                row.innerHTML = 'Message received: ' + strtohtml(message);
+                msgcontainer.appendChild(row);
+            });
+            conn.on('chat-ready', function()
+            {
+                if(statuslabel.innerHTML === 'connected')
+                {
+                    statuslabel.innerHTML = 'ready to chat with end-to-end encryption';
+                }
+            });
         };
     }
 };
