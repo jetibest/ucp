@@ -580,7 +580,7 @@
                     {
                         this.scheme = $1.replace(/^ /gi, '');
                         this.encsessionkey = $2.replace(/^ /gi, '');
-                        this.sessionkey = rsadecrypt(this.encsessionkey);
+                        this.sessionkey = rsadecrypt(pki.privkey, this.encsessionkey);
                         return true;
                     }
                 },
@@ -595,17 +595,49 @@
                 }
             ];
             
+            var exportprivkey = function(privkey)
+            {
+                if(typeof privkey === 'string')
+                {
+                    return privkey;
+                }
+                return forge.pki.privateKeyToPem(privkey) || privkey;
+            };
+            var exportpubkey = function(pubkey)
+            {
+                if(typeof pubkey === 'string')
+                {
+                    return pubkey;
+                }
+                return forge.pki.publicKeyToPem(pubkey) || pubkey;
+            };
+            var importprivkey = function(privkey)
+            {
+                if(typeof privkey === 'string')
+                {
+                    privkey = forge.pki.privateKeyFromPem(privkey) || privkey;
+                }
+                return privkey;
+            };
+            var importpubkey = function(pubkey)
+            {
+                if(typeof pubkey === 'string')
+                {
+                    pubkey = forge.pki.publicKeyFromPem(pubkey) || pubkey;
+                }
+                return pubkey;
+            };
             var pki = {
-                privkey: args.privkey && typeof args.privkey === 'string' ? forge.pki.privateKeyFromPem(args.privkey) : '',
-                pubkey: args.pubkey && typeof args.pubkey === 'string' ? forge.pki.publicKeyFromPem(args.pubkey) : ''
+                privkey: importprivkey(args.privkey) || '',
+                pubkey: importpubkey(args.pubkey) || ''
             };
             var rsadecrypt = function(privkey, str)
             {
-                return pki.privkey ? pki.privkey.decrypt(forge.util.hexToBytes(str)).toHex() : '';
+                return privkey ? privkey.decrypt(forge.util.hexToBytes(str)).toHex() : '';
             };
             var rsaencrypt = function(pubkey, str)
             {
-                return pki.pubkey ? pki.pubkey.encrypt(str).toHex() : '';
+                return pubkey ? pubkey.encrypt(str).toHex() : '';
             };
             var md = forge ? forge.md.sha256.create() : null;
             var decipherCache = {};
@@ -672,6 +704,10 @@
                 return str;
             };
             return {
+                importprivkey: importprivkey,
+                importpubkey: importpubkey,
+                exportprivkey: exportprivkey,
+                exportpubkey: exportpubkey,
                 loadpki: function(ucpsession, pemprivkey, pempubkey)
                 {
                     if(!pemprivkey || !pempubkey)
@@ -712,7 +748,7 @@
                     {
                         md.update(forge.random.getBytesSync(32));
                         ucpsession.sessionkey = md.digest().toHex();
-                        ucpsession.encsessionkey = rsaencrypt(ucpsession.sessionkey);
+                        ucpsession.encsessionkey = rsaencrypt(importpubkey(pubkey), ucpsession.sessionkey);
                     }
                     if(!ucpsession.scheme)
                     {
