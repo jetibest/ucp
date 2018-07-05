@@ -453,7 +453,7 @@
                     }
                 },
                 {
-                    regex: /^confirm (.+) (.+)$/gi,
+                    regex: /^confirm ([^ ]+) ([^ ]+)$/gi,
                     handler: function($0, $1, $2)
                     {
                         var epochms = new Date($2).getTime();
@@ -561,7 +561,7 @@
                     }
                 },
                 {
-                    regex: /^send(| [^ ]*)(| [^ ]*)(| .*)$/gi,
+                    regex: /^send(| [^ ]*)(| [^ ]*)(| [^ ]*)$/gi,
                     handler: function($0, $1, $2, $3)
                     {
                         this.mode = 'send';
@@ -574,7 +574,7 @@
                     }
                 },
                 {
-                    regex: /^encrypt(| .*)(| .*)$/gi,
+                    regex: /^encrypt(| [^ ]*)(| [^ ]*)$/gi,
                     handler: function($0, $1, $2)
                     {
                         this.scheme = $1.replace(/^ /gi, '');
