@@ -237,6 +237,7 @@
             messagelayer.send = function(str)
             {
                 ++id;
+                str = ''+ str;
                 var data = ucp.MESSAGE_START + id + ucp.MESSAGE_HEAD_SEPARATOR + str.length + ucp.MESSAGE_HEAD_SEPARATOR + prev.id + ucp.MESSAGE_TEXT + str.replace(ucp.MESSAGE_SEPARATOR, ucp.MESSAGE_LINEFEED) + ucp.MESSAGE_SEPARATOR;
                 var entry = {
                     id: id,
