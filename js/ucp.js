@@ -52,7 +52,7 @@
             simplemessagelayer.write = args.write;
             simplemessagelayer.send = function(str)
             {
-                simplemessagelayer.write((''+str).replace(ucp.MESSAGE_SEPARATOR, ucp.MESSAGE_LINEFEED) + ucp.MESSAGE_SEPARATOR);
+                simplemessagelayer.write((''+str).replace(/\n/gi, '\r\v') + ucp.MESSAGE_SEPARATOR);
             };
             simplemessagelayer.receive = function(str)
             {
@@ -67,12 +67,12 @@
                     {
                         if(queue.length)
                         {
-                            simplemessagelayer.fire('message', (queue.join('') + str.substring(off, i).replace(/\r$/g, '')).replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR));
+                            simplemessagelayer.fire('message', (queue.join('') + str.substring(off, i).replace(/\r$/g, '')).replace(/\r\v/gi, '\n'));
                             queue = [];
                         }
                         else
                         {
-                            simplemessagelayer.fire('message', str.substring(off, i).replace(/\r$/g, '').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR));
+                            simplemessagelayer.fire('message', str.substring(off, i).replace(/\r$/g, '').replace(/\r\v/gi, '\n'));
                         }
                         off = i + 1;
                     }
@@ -238,7 +238,7 @@
             {
                 ++id;
                 str = ''+ str;
-                var data = ucp.MESSAGE_START + id + ucp.MESSAGE_HEAD_SEPARATOR + str.length + ucp.MESSAGE_HEAD_SEPARATOR + prev.id + ucp.MESSAGE_TEXT + str.replace(ucp.MESSAGE_SEPARATOR, ucp.MESSAGE_LINEFEED) + ucp.MESSAGE_SEPARATOR;
+                var data = ucp.MESSAGE_START + id + ucp.MESSAGE_HEAD_SEPARATOR + str.length + ucp.MESSAGE_HEAD_SEPARATOR + prev.id + ucp.MESSAGE_TEXT + str.replace(/\n/gi, '\r\v') + ucp.MESSAGE_SEPARATOR;
                 var entry = {
                     id: id,
                     status: 0,
@@ -314,7 +314,7 @@
                         // TODO: use message.length to look ahead in buffer
                         if(v === ucp.MESSAGE_SEPARATOR)
                         {
-                            message.text = queue.join('').replace(/\r$/gi, '').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR);
+                            message.text = queue.join('').replace(/\r$/gi, '').replace(/\r\v/gi, '\n');
                             receivemessage(message);
                             message = {};
                             queue = [];
@@ -330,7 +330,7 @@
                         if(v === ucp.MESSAGE_SEPARATOR)
                         {
                             message.type = 'ACK';
-                            message.id = queue.join('').replace(/\r$/gi, '').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR);
+                            message.id = queue.join('').replace(/\r$/gi, '').replace(/\r\v/gi, '\n');
                             receivemessage(message);
                             message = {};
                             queue = [];
@@ -346,7 +346,7 @@
                         if(v === ucp.MESSAGE_SEPARATOR)
                         {
                             message.type = 'NAK';
-                            message.id = queue.join('').replace(/\r$/gi, '').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR);
+                            message.id = queue.join('').replace(/\r$/gi, '').replace(/\r\v/gi, '\n');
                             receivemessage(message);
                             message = {};
                             queue = [];
@@ -362,7 +362,7 @@
                         if(v === ucp.MESSAGE_SEPARATOR)
                         {
                             message.type = 'ENQ';
-                            message.id = queue.join('').replace(/\r$/gi, '').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR);
+                            message.id = queue.join('').replace(/\r$/gi, '').replace(/\r\v/gi, '\n');
                             receivemessage(message);
                             message = {};
                             queue = [];
@@ -396,7 +396,7 @@
                     else if(v === ucp.MESSAGE_SEPARATOR)
                     {
                         message.type = 'SMSG';
-                        message.text = queue.join('').replace(/\r$/gi, '').replace(ucp.MESSAGE_LINEFEED, ucp.MESSAGE_SEPARATOR);
+                        message.text = queue.join('').replace(/\r$/gi, '').replace(/\r\v/gi, '\n');
                         receivemessage(message);
                         message = {};
                         queue = [];
